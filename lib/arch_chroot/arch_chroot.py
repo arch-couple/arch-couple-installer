@@ -44,7 +44,7 @@ def run(command: str) -> None:
     Raises
     ------
     ArchChrootExecutionError
-        If arch-chroot fails to execute or returns a none 0 code
+        If arch-chroot fails to execute or returns none 0
     """
 
     if not command:
