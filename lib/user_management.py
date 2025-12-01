@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import arch_chroot as chroot
+import lib.arch_chroot as chroot
 
 
 class User:
