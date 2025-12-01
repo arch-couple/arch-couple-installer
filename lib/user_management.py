@@ -14,8 +14,8 @@ class User:
         return f"{self.username}:\nPassword: {self.password}\nHomepath: {self.homepath}\nIs Sudoer?: {self.sudoer}"
 
 
-def set_root_password(password: str) -> None:
-    command = f'echo "{password}" | passwd -s'
+def set_user_password(user: User) -> None:
+    command = f'echo "{user.password}" | passwd -s {user.username}'
 
     try:
         chroot.run(command)
