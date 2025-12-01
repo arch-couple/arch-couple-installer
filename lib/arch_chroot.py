@@ -52,7 +52,7 @@ def run(command: str) -> None:
 
     try:
         subprocess.run(
-            ["arch-chroot", _root_mount_point, command],
+            ["arch-chroot", _root_mount_point, "/bin/bash", "-c", command],
             check=True,
             text=True,
             stdout=subprocess.PIPE,
