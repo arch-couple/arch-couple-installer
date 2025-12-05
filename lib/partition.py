@@ -3,7 +3,7 @@ from __future__ import annotations
 import subprocess
 from enum import Enum
 
-from typing_extensions import List, Optional
+from typing_extensions import Dict, List, Optional
 
 
 class Partition:
@@ -55,6 +55,20 @@ class GPTPartitionType(Enum):
     HOME = "933AC7E1-2EB4-4F13-B844-0E14E2AEF915"
 
 
-def create_partitions(partitions: List[Partition]) -> None:
+def create_partitioning_files(partitions: List[Partition]) -> None:
     # will use _create_partition_string to create files (sfdisk named-fields format) for each drive (sfdisk only allows to create partitions for one drive at a time)
-    pass
+    drives = _partitions_per_drive(partitions)
+    for drive, partitions in drives.items():
+        with open(drive, "w") as file:
+            for partition in partitions:
+                file.write(partition.to_sfdisk_format())
+
+
+def _partitions_per_drive(partitions: List[Partition]) -> Dict[str, List[Partition]]:
+    drives: Dict[str, List[Partition]] = {}
+    for partition in partitions:
+        if partition.drive in drives:
+            drives[partition.drive].append(partition)
+        else:
+            drives[partition.drive] = [partition]
+    return drives
