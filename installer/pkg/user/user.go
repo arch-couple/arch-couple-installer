@@ -36,21 +36,28 @@ func New(username, password, homepath string, sudoer bool) (*User, error) {
 	}, nil
 }
 
-func CreateUser(user User) error {
-	err := userAdd(user.Username, user.Homepath)
+func CreateUsers(users []User) error {
+	err := setupSudoerFile()
 	if err != nil {
 		return err
 	}
 
-	err = setPassword(user.Username, user.Password)
-	if err != nil {
-		return err
-	}
-
-	if user.Sudoer {
-		err = addToSudoer(user.Username)
+	for _, user := range users {
+		err = userAdd(user.Username, user.Homepath)
 		if err != nil {
 			return err
+		}
+
+		err = setPassword(user.Username, user.Password)
+		if err != nil {
+			return err
+		}
+
+		if user.Sudoer {
+			err = addToSudoer(user.Username)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -88,4 +95,8 @@ func setPassword(username, password string) error {
 	}
 
 	return nil
+}
+
+func setupSudoerFile() error {
+	// TODO: Take the correct default sudoer file from airootfs and copy it to the chrooted system
 }
