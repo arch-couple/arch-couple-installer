@@ -54,7 +54,7 @@ func New(username, password, homepath string, sudoer bool) (*User, error) {
 // Errors that can be returned:
 //   - PipeError
 //   - ArchChrootError
-func CreateUsers(user User) error {
+func CreateUser(user User) error {
 	err := userAdd(user.Username, user.Homepath)
 	if err != nil {
 		return err
