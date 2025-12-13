@@ -16,8 +16,8 @@ type User struct {
 }
 
 func New(username, password, homepath string, sudoer bool) (*User, error) {
-	if strings.TrimSpace(username) == "" {
-		return nil, errors.New("Can't create user with empty username")
+	if strings.TrimSpace(username) == "" || strings.TrimSpace(password) == "" {
+		return nil, errors.New("Can't create user with empty username or password")
 	}
 
 	if strings.TrimSpace(homepath) == "" {
