@@ -21,11 +21,9 @@ func New(username, password, homepath string, sudoer bool) (*User, error) {
 	}
 
 	if strings.TrimSpace(homepath) == "" {
-		if homepath[0] != '/' {
-			return nil, errors.New("Provide a valid directory for user home path")
-		}
-
 		homepath = fmt.Sprintf("/home/%s", username)
+	} else if homepath[0] != '/' {
+		return nil, errors.New("Provide a valid directory for user home path")
 	}
 
 	return &User{
