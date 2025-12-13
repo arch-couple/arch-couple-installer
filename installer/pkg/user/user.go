@@ -32,7 +32,33 @@ func New(username, password, homepath string, sudoer bool) (*User, error) {
 	}, nil
 }
 
-func set_password(username, password string) error {
+func CreateUser(user User) {
+	// TODO: Make high level function that calls other functions to create the user
+}
+
+func addToSudoer(username string) error {
+	addToWheel := fmt.Sprintf("usermod -aG wheel %s", username)
+
+	err := arch_chroot.Run(addToWheel)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func userAdd(username, homepath string) error {
+	createCommand := fmt.Sprintf("useradd -m %s -d %s", username, homepath)
+
+	err := arch_chroot.Run(createCommand)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func setPassword(username, password string) error {
 	command := fmt.Sprintf("echo %s | passwd %s -s", password, username)
 
 	err := arch_chroot.Run(command)
