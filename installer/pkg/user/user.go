@@ -19,34 +19,22 @@ type User struct {
 	Sudoer   bool   `json:"sudoer"`
 }
 
-// Constructor for User struct.
-//
-// If homepath is empty, it will be set to: /home/[username]
-//
-// Will either return:
-//   - *User
-//   - NewUserError: When an incorrect value is passed
-func New(username, password, homepath string, sudoer bool) (*User, error) {
-	if strings.TrimSpace(username) == "" || strings.TrimSpace(password) == "" {
-		return nil, NewUserError{
+func (u *User) Validate() error {
+	if strings.TrimSpace(u.Username) == "" || strings.TrimSpace(u.Password) == "" {
+		return NewUserError{
 			err: errors.New("Can't create user with empty username or password"),
 		}
 	}
 
-	if strings.TrimSpace(homepath) == "" {
-		homepath = fmt.Sprintf("/home/%s", username)
-	} else if strings.HasPrefix(homepath, "/") {
-		return nil, NewUserError{
+	if strings.TrimSpace(u.Homepath) == "" {
+		u.Homepath = fmt.Sprintf("/home/%s", u.Username)
+	} else if strings.HasPrefix(u.Homepath, "/") {
+		return NewUserError{
 			err: errors.New("Provide a valid directory for user home path"),
 		}
 	}
 
-	return &User{
-		Username: username,
-		Password: password,
-		Homepath: homepath,
-		Sudoer:   sudoer,
-	}, nil
+	return nil
 }
 
 func SetRootPassword(password string) error {
