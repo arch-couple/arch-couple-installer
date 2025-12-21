@@ -2,14 +2,14 @@ package hostname
 
 import "fmt"
 
-type InvalidHostnameError struct {
+type HostnameError struct {
 	Err error
 }
 
-func (e *InvalidHostnameError) Error() string {
-	return fmt.Sprintf("invalid hostname error: error=%v", e.Err)
+func (e HostnameError) Error() string {
+	return fmt.Sprintf("Hostname error: error=%s", e.Err.Error())
 }
 
-func (e *InvalidHostnameError) Unwrap() error {
+func (e HostnameError) Unwrap() error {
 	return e.Err
 }

@@ -10,8 +10,8 @@ import (
 
 func SetHostname(hostname string) error {
 	if !isRFC1178Complient(hostname) {
-		return &InvalidHostnameError{
-			Err: errors.New("Hostname isn't a valid one"),
+		return HostnameError{
+			Err: errors.New("Invalid hostname"),
 		}
 	}
 

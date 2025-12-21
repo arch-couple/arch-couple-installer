@@ -2,36 +2,17 @@ package timezone
 
 import "fmt"
 
-// PipeError represents an error that occurred after
-// a failed attempt to pipe STDOUT.
-//
-// It wraps the original error for better clarity.
-type PipeError struct {
+type TimezoneError struct {
 	Err error
 }
 
 // Returns a formatted error message including the original
 // error message.
-func (e PipeError) Error() string {
-	return fmt.Sprintf("STDOUT pipe creation failed: error=%v", e.Err)
+func (e TimezoneError) Error() string {
+	return fmt.Sprintf("Error setting timezone: error=%s", e.Err.Error())
 }
 
 // Unwrap returns the underlying error for error chaining.
-func (e PipeError) Unwrap() error {
-	return e.Err
-}
-
-type InvalidTimezoneError struct {
-	Err error
-}
-
-// Returns a formatted error message including the original
-// error message.
-func (e InvalidTimezoneError) Error() string {
-	return fmt.Sprintf("invalid timezone error: error=%v", e.Err)
-}
-
-// Unwrap returns the underlying error for error chaining.
-func (e InvalidTimezoneError) Unwrap() error {
+func (e TimezoneError) Unwrap() error {
 	return e.Err
 }
