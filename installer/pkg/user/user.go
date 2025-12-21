@@ -49,6 +49,15 @@ func New(username, password, homepath string, sudoer bool) (*User, error) {
 	}, nil
 }
 
+func SetRootPassword(password string) error {
+	command := fmt.Sprintf("echo %s | passwd -s", password)
+	if err := arch_chroot.Run(command); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Takes in a user then creates it in the newly installed system.
 //
 // Errors that can be returned:
