@@ -51,7 +51,7 @@ func SetRootPassword(password string) error {
 // Errors that can be returned:
 //   - PipeError
 //   - ArchChrootError
-func CreateUser(user User) error {
+func CreateUser(user *User) error {
 	err := userAdd(user.Username, user.Homepath)
 	if err != nil {
 		return err
