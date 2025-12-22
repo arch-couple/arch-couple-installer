@@ -10,6 +10,13 @@ import (
 	"github.com/arch-couple/arch-couple-installer/pkg/arch_chroot"
 )
 
+// Checks if the timezone exist then sets it up inside
+// the new install.
+//
+// Can return error types:
+//   - TimezoneError
+//   - PipeError
+//   - ArchChrootError
 func SetTime(timezone string) error {
 	isValid, err := isTimezoneValid(timezone)
 	if err != nil {
@@ -26,11 +33,22 @@ func SetTime(timezone string) error {
 	return arch_chroot.Run(command)
 }
 
+// Sets up hardware clock to generate /etc/adjtime.
+//
+// Runs the following command in arch-chroot:
+//
+//	hwclock --systohc
+//
+// Can return error types:
+//   - PipeError
+//   - ArchChrootError
 func SetHwClock() error {
 	command := "hwclock --systohc"
 	return arch_chroot.Run(command)
 }
 
+// Checks if the given timezone is a valid one with a
+// binary search accross all timezones.
 func isTimezoneValid(timezone string) (bool, error) {
 	timezones, err := getAllTimezones()
 	if err != nil {
@@ -57,6 +75,12 @@ func isTimezoneValid(timezone string) (bool, error) {
 	return false, nil
 }
 
+// Gets all the timezones from STDOUT and returns them
+// in an array of string.
+//
+// It executes:
+//
+//	timedatectl list-timezones
 func getAllTimezones() ([]string, error) {
 	cmd := exec.Command("timedatectl", "list-timezones")
 	stdout, err := cmd.StdoutPipe()

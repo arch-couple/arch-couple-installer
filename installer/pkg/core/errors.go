@@ -3,7 +3,7 @@ package core
 import "fmt"
 
 // CoreInstallError represents an error that occured
-// during the instrallation of the core Arch and Linux system.
+// during the installation of the core Arch and Linux system.
 type CoreInstallError struct {
 	Err error
 }

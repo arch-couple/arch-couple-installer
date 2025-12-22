@@ -2,6 +2,8 @@ package timezone
 
 import "fmt"
 
+// TimezoneError represents an error that occured
+// when setting up the new install timezones.
 type TimezoneError struct {
 	Err error
 }

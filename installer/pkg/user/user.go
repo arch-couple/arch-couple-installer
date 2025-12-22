@@ -19,6 +19,8 @@ type User struct {
 	Sudoer   bool   `json:"sudoer"`
 }
 
+// Validates if the user is a valid one or if it contains values that
+// aren't valid.
 func (u *User) Validate() error {
 	if strings.TrimSpace(u.Username) == "" || strings.TrimSpace(u.Password) == "" {
 		return NewUserError{
@@ -37,6 +39,7 @@ func (u *User) Validate() error {
 	return nil
 }
 
+// Sets the given password for the root user.
 func SetRootPassword(password string) error {
 	command := fmt.Sprintf("echo %s | passwd -s", password)
 	if err := arch_chroot.Run(command); err != nil {
