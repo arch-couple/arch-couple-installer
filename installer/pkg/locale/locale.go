@@ -45,7 +45,8 @@ func GenerateLocales(locale string) error {
 
 func doesLocaleExist(locale string, allLocales []string) (bool, int) {
 	for i, line := range allLocales {
-		if strings.Contains(line, locale) {
+		splittedString := strings.Split(line, " ")
+		if splittedString[0] == "#"+locale && splittedString[1] == "UTF-8" {
 			return true, i
 		}
 	}
