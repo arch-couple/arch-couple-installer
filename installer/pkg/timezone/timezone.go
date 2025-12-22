@@ -13,7 +13,9 @@ import (
 func SetTime(timezone string) error {
 	isValid, err := isTimezoneValid(timezone)
 	if err != nil {
-		return err
+		return TimezoneError{
+			Err: err,
+		}
 	} else if !isValid {
 		return TimezoneError{
 			Err: errors.New("Timezone isn't valid"),
@@ -67,9 +69,7 @@ func getAllTimezones() ([]string, error) {
 	cmd := exec.Command("timedatectl", "list-timezones")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return nil, TimezoneError{
-			Err: err,
-		}
+		return nil, err
 	}
 
 	if err := cmd.Start(); err != nil {

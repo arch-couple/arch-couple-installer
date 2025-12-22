@@ -15,7 +15,9 @@ const FILEPATH string = "/mnt/etc/locale.gen"
 func GenerateLocales(locale string) error {
 	locales, err := loadLocaleGen()
 	if err != nil {
-		return err
+		return LocaleGenError{
+			Err: err,
+		}
 	}
 
 	if exists, index := doesLocaleExist(locale, locales); exists {
@@ -33,7 +35,9 @@ func GenerateLocales(locale string) error {
 	}
 
 	if err := saveLocaleGen(locales); err != nil {
-		return err
+		return LocaleGenError{
+			Err: err,
+		}
 	}
 
 	if err := arch_chroot.Run("locale-gen"); err != nil {
@@ -56,18 +60,14 @@ func doesLocaleExist(locale string, allLocales []string) (bool, int) {
 func saveLocaleGen(content []string) error {
 	f, err := os.Open(FILEPATH)
 	if err != nil {
-		return LocaleGenError{
-			Err: err,
-		}
+		return err
 	}
 
 	defer f.Close()
 
 	for _, line := range content {
 		if _, err := f.WriteString(line); err != nil {
-			return LocaleGenError{
-				Err: err,
-			}
+			return err
 		}
 	}
 
@@ -77,9 +77,7 @@ func saveLocaleGen(content []string) error {
 func loadLocaleGen() ([]string, error) {
 	f, err := os.Open(FILEPATH)
 	if err != nil {
-		return nil, LocaleGenError{
-			Err: err,
-		}
+		return nil, err
 	}
 
 	defer f.Close()
