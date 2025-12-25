@@ -6,9 +6,9 @@ import (
 )
 
 // Basic Arch Linux install packages names
-const _LINUX_KERNEL string = "linux"
-const _BASE_ARCH string = "base"
-const _BASE_LINUX_FIRMWARE string = "linux-firmware"
+const linuxKernel string = "linux"
+const baseArch string = "base"
+const baseLinuxFirmware string = "linux-firmware"
 
 // Installs a basic Arch Linux installation on the drive
 // mounted on /mnt using pacstrap. Detects and installs the CPU
@@ -28,7 +28,7 @@ func InstallBasicInstallation() error {
 		}
 	}
 
-	cmd := exec.Command("pacstrap", "-K", "/mnt", _BASE_ARCH, _LINUX_KERNEL, _BASE_LINUX_FIRMWARE, cpuMicrocode)
+	cmd := exec.Command("pacstrap", "-K", "/mnt", baseArch, linuxKernel, baseLinuxFirmware, cpuMicrocode)
 
 	if err := cmd.Run(); err != nil {
 		return CoreInstallError{
