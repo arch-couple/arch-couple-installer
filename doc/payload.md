@@ -2,6 +2,13 @@
 
 ```json
 {
+  "drives" : [
+    {
+      "drive": "/dev/sda",
+      "append": true
+      "partitions" : []
+    }
+  ]
   "partitions": [
     {
       "drive": "[path to drive]",
@@ -10,6 +17,7 @@
         "unit": "[unit]",
         "takeRemaining": true
       },
+      "fileSystem": "btrfs/ext4"
       "partitionType": "[partition type]",
       "label": "[drive label]",
       "mountPoint": "[dir]"

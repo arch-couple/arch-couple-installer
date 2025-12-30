@@ -1,30 +1,39 @@
 package partition
 
-type NewPartitionSizeError struct {
-	Err string
+import "fmt"
+
+// NewPartitionSizeParameterError represents an error that occured
+// after validating a struct's attributes
+type ValidationError struct {
+	Err error
 }
 
-func (e NewPartitionSizeError) Error() string {
+// Returns a formatted error message including the underlying
+// error message
+func (e *ValidationError) Error() string {
+	return fmt.Sprintf("validation error: error=%v", e.Err)
+}
+
+// Returns the error
+func (e *ValidationError) Unwrap() error {
 	return e.Err
 }
 
-type NewPartitionError struct {
-	Err string
+// SetupPartitionsError represents an error that occured
+// after trying to create partitions
+//
+// It wraps the underlying error for better clarity
+type SetupPartitionsError struct {
+	Err error
 }
 
-func (e NewPartitionError) Error() string {
-	return e.Err
+// Returns a formatted error message including the underlying
+// error message
+func (e *SetupPartitionsError) Error() string {
+	return e.Err.Error()
 }
 
-type CreatePartitioningFileError struct {
-	Message string
-	Err     error
-}
-
-func (e *CreatePartitioningFileError) Error() string {
-	return e.Message
-}
-
-func (e *CreatePartitioningFileError) Unwrap() error {
+// Unwrap returns the underlying error for error chaining
+func (e *SetupPartitionsError) Unwrap() error {
 	return e.Err
 }

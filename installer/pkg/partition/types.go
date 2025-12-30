@@ -1,95 +1,190 @@
 package partition
 
 import (
+	"errors"
 	"fmt"
+	"slices"
 	"strings"
 )
 
-type GptPartitionType string
-
 const (
-	GptPartitionTypeEfi        GptPartitionType = "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
-	GptPartitionTypeSwap       GptPartitionType = "0657FD6D-A4AB-43C4-84E5-0933C84B4F4F"
-	GptPartitionTypeRoot       GptPartitionType = "4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709"
-	GptPartitionTypeFileSystem GptPartitionType = "0FC63DAF-8483-4772-8E79-3D69D8477DE4"
-	GptPartitionTypeHome       GptPartitionType = "933AC7E1-2EB4-4F13-B844-0E14E2AEF915"
+	fileSystemExt4  string = "ext4"
+	fileSystemBtrfs string = "btrfs"
 )
 
-type PartitionSizeUnit string
-
-const (
-	PartitionSizeUnitKiB PartitionSizeUnit = "KiB"
-	PartitionSizeUnitMiB PartitionSizeUnit = "MiB"
-	PartitionSizeUnitGiB PartitionSizeUnit = "GiB"
-	PartitionSizeUnitTiB PartitionSizeUnit = "TiB"
-	PartitionSizeUnitPiB PartitionSizeUnit = "PiB"
-	PartitionSizeUnitEiB PartitionSizeUnit = "EiB"
-	PartitionSizeUnitZiB PartitionSizeUnit = "ZiB"
-	PartitionSizeUnitYiB PartitionSizeUnit = "YiB"
-)
-
-type Partition struct {
-	Drive         string
-	Size          PartitionSize
-	PartitionType GptPartitionType
-	MountPoint    *string
+var supportedFileSystems []string = []string{
+	fileSystemExt4,
+	fileSystemBtrfs,
 }
 
-func (p Partition) ToSfdiskFormat() string {
-	partition_string := fmt.Sprintf("uuid=%s", p.PartitionType)
+const (
+	gptPartitionTypeEfi        string = "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+	gptPartitionTypeSwap       string = "0657FD6D-A4AB-43C4-84E5-0933C84B4F4F"
+	gptPartitionTypeRoot       string = "4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709"
+	gptPartitionTypeFileSystem string = "0FC63DAF-8483-4772-8E79-3D69D8477DE4"
+	gptPartitionTypeHome       string = "933AC7E1-2EB4-4F13-B844-0E14E2AEF915"
+)
 
-	if p.Size.TakeRemaining == true {
+var supportedGptPartitionTypes []string = []string{
+	gptPartitionTypeEfi,
+	gptPartitionTypeSwap,
+	gptPartitionTypeRoot,
+	gptPartitionTypeFileSystem,
+	gptPartitionTypeHome,
+}
+
+const (
+	partitionSizeUnitKiB string = "KiB"
+	partitionSizeUnitMiB string = "MiB"
+	partitionSizeUnitGiB string = "GiB"
+	partitionSizeUnitTiB string = "TiB"
+	partitionSizeUnitPiB string = "PiB"
+	partitionSizeUnitEiB string = "EiB"
+	partitionSizeUnitZiB string = "ZiB"
+	partitionSizeUnitYiB string = "YiB"
+)
+
+var supportedPartitionSizeUnits []string = []string{
+	partitionSizeUnitKiB,
+	partitionSizeUnitMiB,
+	partitionSizeUnitGiB,
+	partitionSizeUnitTiB,
+	partitionSizeUnitPiB,
+	partitionSizeUnitEiB,
+	partitionSizeUnitZiB,
+	partitionSizeUnitYiB,
+}
+
+// Drive represents a drive that needs to have partitions added to it
+// Possible attributes values:
+// - Path: the full path of to drive (starting with '/dev/')
+type Drive struct {
+	Path       string      `json:"path"`
+	Append     bool        `json:"append"`
+	Partitions []Partition `json:"partitions"`
+}
+
+// Validates the attributes of a Drive struct
+// Returns a ValidationError if validation fails
+func (d *Drive) Validate() error {
+	if !strings.HasPrefix(d.Path, "/dev/") {
+		return &ValidationError{
+			Err: errors.New("Drive validation: error=Path is in the wrong format: should start by '/dev/'"),
+		}
+	}
+	return nil
+}
+
+// Partition represents a drive/disk partition that needs to be created
+// Possible attributes values:
+// - FileSystem: A file system present in the supportedFileSystems slice above, or nil
+// - PartitionType: a GPT partition type present in the supportedGptPartitionTypes slice above
+// - MountPoint: an absolute Linux filesystem path, or nil
+type Partition struct {
+	Size          PartitionSize `json:"size"`
+	FileSystem    *string       `json:"fileSystem"`
+	PartitionType string        `json:"partitionType"`
+	MountPoint    *string       `json:"mountPoint"`
+}
+
+// Transforms a partition into its sfdisk format
+// Returns a string
+//
+// Example:
+// "type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, size=1GiB"
+func (p *Partition) toSfdiskFormat() string {
+	partition_string := fmt.Sprintf("type=%s", p.PartitionType)
+	if *p.Size.TakeRemaining {
 		partition_string += ", size=+"
 	} else {
-		partition_string += fmt.Sprintf(", size=%d%s", p.Size.Amount, *p.Size.Unit)
+		partition_string += fmt.Sprintf(", size=%d%s", *p.Size.Amount, *p.Size.Unit)
 	}
 	return partition_string
 }
 
-func NewPartition(drive string, size *PartitionSize, partitionType GptPartitionType, mountPoint *string) (*Partition, error) {
-	if strings.HasPrefix(drive, "/dev/") == false {
-		return nil, NewPartitionError{
-			Err: "parameter drive is in the wrong format: should start by '/dev/'",
+// Validates the attributes of a Partition struct
+// Returns a ValidationError if validation fails
+func (p *Partition) Validate() error {
+	if p.MountPoint != nil {
+		if !strings.HasPrefix(*p.MountPoint, "/") {
+			return &ValidationError{
+				Err: errors.New("Partition validation: error=MountPoint is in the wrong format: should start by '/'"),
+			}
+		}
+	}
+	if !slices.Contains(supportedGptPartitionTypes, p.PartitionType) {
+		return &ValidationError{
+			Err: errors.New("Partition validation: error=specified PartitionType is not supported"),
+		}
+	}
+	if p.FileSystem != nil {
+		if !slices.Contains(supportedFileSystems, *p.FileSystem) {
+			return &ValidationError{
+				Err: errors.New("Partition validation: error=specified FileSystem is not supported"),
+			}
 		}
 	}
 
-	if strings.HasPrefix(*mountPoint, "/") == false {
-		return nil, NewPartitionError{
-			Err: "parameter mountPoint is in the wrong format: should start by '/'",
+	if p.FileSystem == nil {
+		if p.PartitionType != gptPartitionTypeEfi && p.PartitionType != gptPartitionTypeSwap {
+			return &ValidationError{
+				Err: errors.New("Partition validation: error=Filesystem is nil, but the partition type needs a file system"),
+			}
 		}
 	}
 
-	return &Partition{
-		Drive:         drive,
-		Size:          *size,
-		PartitionType: partitionType,
-		MountPoint:    mountPoint,
-	}, nil
+	if p.MountPoint == nil {
+		if p.PartitionType == gptPartitionTypeEfi || p.PartitionType == gptPartitionTypeSwap || p.PartitionType == gptPartitionTypeRoot {
+			return &ValidationError{
+				Err: errors.New("Partition validation: error=MountPoint is nil, but the partition type needs a mount point"),
+			}
+		}
+	}
+
+	return nil
 }
 
+// PartitionSize represents the size of a Partition
+// Possible attributes values:
+// Amount: any positive integer greater or equal 1, or nil
+// Unit: a partition size unit present in the supportedPartitionSizeUnits slice above, or nil
+// TakeRemaining: true/false/nil, if false/nil: Amount and Unit must not be nil
 type PartitionSize struct {
-	Amount        *int
-	Unit          *string
-	TakeRemaining bool
+	Amount        *int    `json:"amount"`
+	Unit          *string `json:"unit"`
+	TakeRemaining *bool   `json:"takeRemaining"`
 }
 
-func NewPartitionSize(amount *int, unit *string, takeRemaining *bool) (*PartitionSize, error) {
+// Validates the attributes of a PartitionSize struct
+// Returns a ValidationError if validation fails
+func (p *PartitionSize) Validate() error {
 	var takeRemainingValue bool
-	if takeRemaining == nil {
+	if p.TakeRemaining == nil {
 		takeRemainingValue = false
-	} else {
-		takeRemainingValue = *takeRemaining
+		p.TakeRemaining = &takeRemainingValue
 	}
 
-	if takeRemainingValue == false && (amount == nil || unit == nil) {
-		return nil, &NewPartitionSizeError{
-			Err: "parameter takeRemaining is false but parameters amount and/or unit are not specified.",
+	if *p.TakeRemaining == false && (p.Amount == nil || p.Unit == nil) {
+		return &ValidationError{
+			Err: errors.New("PartitionSize validation: error=TakeRemaining is false but Amount and/or Unit are nil"),
 		}
 	}
 
-	return &PartitionSize{
-		Amount:        amount,
-		Unit:          unit,
-		TakeRemaining: takeRemainingValue,
-	}, nil
+	if p.Amount != nil {
+		if *p.Amount < 1 {
+			return &ValidationError{
+				Err: errors.New("PartitionSize validation: error=Amount must be greater or equal 1"),
+			}
+		}
+	}
+
+	if p.Unit != nil {
+		if !slices.Contains(supportedPartitionSizeUnits, *p.Unit) {
+			return &ValidationError{
+				Err: errors.New("PartitionSize validation: error=specified Unit is not supported"),
+			}
+		}
+	}
+
+	return nil
 }
