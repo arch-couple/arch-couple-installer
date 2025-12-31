@@ -6,7 +6,7 @@ import (
 	"github.com/arch-couple/arch-couple-installer/pkg/arch_chroot"
 )
 
-const esp string = "/boot"
+const espMountPoint string = "/boot"
 const bootloaderId string = "GRUB"
 
 // Installs and sets up Grub on the newly installed system.
@@ -57,6 +57,9 @@ func setUpOsProber() error {
 //
 //	grub-install...
 func grubInstall() error {
-	command := fmt.Sprintf("grub-install --target=x86_64-efi --efi-directory=%s --bootloader-id=%s", esp, bootloaderId)
+	command := fmt.Sprintf(
+		"grub-install --target=x86_64-efi --efi-directory=%s --bootloader-id=%s",
+		espMountPoint,
+		bootloaderId)
 	return arch_chroot.Run(command)
 }
