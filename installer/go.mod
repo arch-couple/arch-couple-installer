@@ -1,3 +1,3 @@
-module github.com/arch-couple/arch-couple-installer
+module github.com/october-os/october-linux
 
 go 1.25.4
