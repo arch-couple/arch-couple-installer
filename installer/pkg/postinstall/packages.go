@@ -10,24 +10,27 @@ import (
 )
 
 const packageFilePath string = "/root/postinstall/packages"
+const aurFilePath string = "/root/postinstall/aur"
 
-func downloadAllPackages(packages []string) error {
+func downloadAllPackages(packages []string, aur bool) error {
 	var sb strings.Builder
 	for _, p := range packages {
 		sb.WriteString(p)
 		sb.WriteString(" ")
 	}
 
-	command := fmt.Sprintf("pacman -S --noconfirm %s", sb.String())
-	if err := arch_chroot.Run(command); err != nil {
-		return err
+	var command string
+	if aur {
+		command = fmt.Sprintf("sudo -u builder yay -S %s --noconfirm", sb.String())
+	} else {
+		command = fmt.Sprintf("pacman -S --noconfirm %s", sb.String())
 	}
 
-	return nil
+	return arch_chroot.Run(command)
 }
 
-func getPackageList() ([]string, error) {
-	fd, err := os.Open(packageFilePath)
+func getPackageList(path string) ([]string, error) {
+	fd, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
