@@ -1,6 +1,7 @@
 package timezone
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os/exec"
@@ -39,17 +40,21 @@ func SetHwClock() error {
 //
 // Can return error types:
 //   - TimezoneError
-func ValidateTimezone(timezone string) (bool, error) {
+func ValidateTimezone(timezone string) error {
 	timezones, err := getAllTimezones()
 	if err != nil {
-		return false, TimezoneError{
+		return TimezoneError{
 			Err: err,
 		}
 	}
 
-	_, found := slices.BinarySearch(timezones, timezone)
+	if _, found := slices.BinarySearch(timezones, timezone); !found {
+		return TimezoneError{
+			Err: errors.New("Invalid timezone"),
+		}
+	}
 
-	return found, nil
+	return nil
 }
 
 // Gets all the timezones from STDOUT and returns them
