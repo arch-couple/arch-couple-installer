@@ -36,6 +36,9 @@ func SetHwClock() error {
 
 // Checks if the given timezone is a valid one with a
 // binary search accross all timezones.
+//
+// Can return error types:
+//   - TimezoneError
 func IsTimezoneValid(timezone string) (bool, error) {
 	timezones, err := getAllTimezones()
 	if err != nil {
