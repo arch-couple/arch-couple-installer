@@ -28,6 +28,9 @@
       "sudoer": true,
     }
   ],
+  "mirrors": [
+    "list of countries"
+  ],
   "timezone": "[user timezone]",
   "locale": "[user locale]",
   "hostname": "[user hostname]",
