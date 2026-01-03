@@ -29,3 +29,12 @@ func deleteBuilderAccount() error {
 	command := fmt.Sprintf("%s && %s", deleteSudoFile, deleteUser)
 	return arch_chroot.Run(command)
 }
+
+// Adds the wheel user group as system admins in /etc/sudoers
+// inside the newly installed system.
+func setupSudoerFile() error {
+	wheelLine := "%wheel      ALL=(ALL:ALL) ALL"
+	command := fmt.Sprintf("echo \"%s\" >> /etc/sudoers", wheelLine)
+
+	return arch_chroot.Run(command)
+}
