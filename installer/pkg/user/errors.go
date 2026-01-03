@@ -3,7 +3,7 @@ package user
 import "fmt"
 
 // NewUserError represents an error that occured during the
-// instantiation of a user inside the constructor.
+// instantiation of a user inside the constructor. or validating
 //
 // It wraps an error for better debugging.
 type NewUserError struct {

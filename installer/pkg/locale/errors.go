@@ -3,7 +3,7 @@ package locale
 import "fmt"
 
 // LocaleGenError represents an error that occured
-// when setting up the new install locales.
+// when setting up or validating the new install locales.
 type LocaleGenError struct {
 	Err error
 }

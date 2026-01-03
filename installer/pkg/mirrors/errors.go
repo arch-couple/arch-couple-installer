@@ -3,7 +3,7 @@ package mirrors
 import "fmt"
 
 // MirrorListError represents an error that occured
-// when setting up and saving the mirrorlist file.
+// during setting or validating mirrors
 type MirrorListError struct {
 	err error
 }

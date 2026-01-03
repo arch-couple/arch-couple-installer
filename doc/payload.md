@@ -28,7 +28,7 @@
       "sudoer": true,
     }
   ],
-  "mirrors": [
+  "mirrorCountries": [
     "list of countries"
   ],
   "timezone": "[user timezone]",
