@@ -34,6 +34,6 @@
   "timezone": "[user timezone]",
   "locale": "[user locale]",
   "hostname": "[user hostname]",
-  "rootpassword": "[root password]",
+  "rootPassword": "[root password]",
 }
 ```
