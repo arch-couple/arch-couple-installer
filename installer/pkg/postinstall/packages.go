@@ -17,15 +17,14 @@ type pkg struct {
 const packageFilePath string = "/root/postinstall/packages"
 const aurFilePath string = "/root/postinstall/aur"
 
-func downloadAllPackages(packages []pkg, aur bool) error {
+func downloadAllPackages(packages []pkg, fromAur bool) error {
 	var sb strings.Builder
 	for _, p := range packages {
-		sb.WriteString(p.name)
-		sb.WriteString(" ")
+		sb.WriteString(p.name + " ")
 	}
 
 	var command string
-	if aur {
+	if fromAur {
 		command = fmt.Sprintf("sudo -u builder yay -S %s --noconfirm", sb.String())
 	} else {
 		command = fmt.Sprintf("pacman -Sy --noconfirm %s", sb.String())
@@ -69,8 +68,8 @@ func getPackageList(path string) ([]pkg, error) {
 }
 
 func packageFlagParser(packages []pkg) error {
-	var systemdEnable []pkg
-	var systemdUserEnable []pkg
+	var systemdEnablePkgs []pkg
+	var systemdUserEnablePkgs []pkg
 
 	for _, p := range packages {
 		if len(p.flags) == 0 {
@@ -80,21 +79,21 @@ func packageFlagParser(packages []pkg) error {
 		for _, f := range p.flags {
 			switch f {
 			case "SYSTEMD_ENABLE":
-				systemdEnable = append(systemdEnable, p)
+				systemdEnablePkgs = append(systemdEnablePkgs, p)
 			case "SYSTEMD_USER_ENABLE":
-				systemdUserEnable = append(systemdUserEnable, p)
+				systemdUserEnablePkgs = append(systemdUserEnablePkgs, p)
 			}
 		}
 	}
 
-	if len(systemdEnable) > 0 {
-		if err := enableSystemd(systemdEnable); err != nil {
+	if len(systemdEnablePkgs) > 0 {
+		if err := systemdEnable(systemdEnablePkgs); err != nil {
 			return err
 		}
 	}
 
-	if len(systemdUserEnable) > 0 {
-		if err := enableUserSystemd(systemdUserEnable); err != nil {
+	if len(systemdUserEnablePkgs) > 0 {
+		if err := systemdUserEnable(systemdUserEnablePkgs); err != nil {
 			return err
 		}
 	}

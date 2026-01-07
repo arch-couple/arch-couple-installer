@@ -66,3 +66,13 @@ func EnableMultilibRepo() error {
 	command := "sed -i -e '/#\\[multilib\\]/,+1s/^#//' /etc/pacman.conf"
 	return arch_chroot.Run(command)
 }
+
+func SetupSudoerFile() error {
+	if err := addWheelGroup(); err != nil {
+		return PostInstallError{
+			err: err,
+		}
+	}
+
+	return nil
+}

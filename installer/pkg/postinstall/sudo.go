@@ -32,7 +32,7 @@ func deleteBuilderAccount() error {
 
 // Adds the wheel user group as system admins in /etc/sudoers
 // inside the newly installed system.
-func setupSudoerFile() error {
+func addWheelGroup() error {
 	wheelLine := "%wheel      ALL=(ALL:ALL) ALL"
 	command := fmt.Sprintf("echo \"%s\" >> /etc/sudoers", wheelLine)
 
