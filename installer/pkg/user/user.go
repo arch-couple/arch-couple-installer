@@ -30,7 +30,7 @@ func (u *User) Validate() error {
 
 	if strings.TrimSpace(u.Homepath) == "" {
 		u.Homepath = fmt.Sprintf("/home/%s", u.Username)
-	} else if strings.HasPrefix(u.Homepath, "/") {
+	} else if !strings.HasPrefix(u.Homepath, "/") {
 		return NewUserError{
 			err: errors.New("Provide a valid directory for user home path"),
 		}

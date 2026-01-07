@@ -11,13 +11,13 @@
           "size": {
             "amount": 1234,
             "unit": "MiB/GiB/etc.",
-            "takeRemaining": true/false,
+            "takeRemaining": true/false
           },
           "fileSystem": "btrfs/ext4",
           "partitionType": "gpt partition type (guid)",
-          "mountPoint": "/absolute/path/to/directory",
+          "mountPoint": "/absolute/path/to/directory"
         }
-      ],
+      ]
     }
   ],
   "users": [
@@ -25,15 +25,15 @@
       "username": "[username]",
       "password": "[password]",
       "homepath": "[path to home]",
-      "sudoer": true,
+      "sudoer": true
     }
   ],
-  "mirrors": [
+  "mirrorCountries": [
     "list of countries"
   ],
   "timezone": "[user timezone]",
   "locale": "[user locale]",
   "hostname": "[user hostname]",
-  "rootpassword": "[root password]",
+  "rootPassword": "[root password]"
 }
 ```
