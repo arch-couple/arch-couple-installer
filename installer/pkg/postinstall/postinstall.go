@@ -2,6 +2,12 @@ package postinstall
 
 import "github.com/october-os/october-installer/pkg/arch_chroot"
 
+// Gets the list of packages that need to be installed
+// with pacman, installs them, then configure them
+// if needed.
+//
+// Can return errors of types :
+//   - PostInstallError
 func InstallPostInstallPackages() error {
 	packages, err := getPackageList(packageFilePath)
 	if err != nil {
@@ -25,6 +31,12 @@ func InstallPostInstallPackages() error {
 	return nil
 }
 
+// Gets the list of packages that need to be installed
+// with yay, installs yay and them, then configure them
+// if needed.
+//
+// Can return errors of types :
+//   - PostInstallError
 func InstallAurHelperAndPackages() error {
 	if err := activateBuilderAccount(); err != nil {
 		return err
@@ -62,12 +74,20 @@ func InstallAurHelperAndPackages() error {
 	return nil
 }
 
+// Enables the multilib package repository in pacman.
+//
+// Can return errors of types :
+//   - PostInstallError
 func EnableMultilibRepo() error {
 	command := "sed -i -e '/#\\[multilib\\]/,+1s/^#//' /etc/pacman.conf"
 	return arch_chroot.Run(command)
 }
 
-func SetupSudoerFile() error {
+// Creates and enables the wheel group in sudo.
+//
+// Can return errors of types:
+//   - PostInstallError
+func SetupSudo() error {
 	if err := addWheelGroup(); err != nil {
 		return PostInstallError{
 			err: err,
