@@ -15,7 +15,7 @@ func systemdEnable(packages []pkg) error {
 		sb.WriteString(p.name + " ")
 	}
 
-	command := fmt.Sprintf("systemd enable %s", sb.String())
+	command := fmt.Sprintf("systemctl enable %s", sb.String())
 	return arch_chroot.Run(command)
 }
 
@@ -31,6 +31,6 @@ func systemdUserEnable(packages []pkg) error {
 		sb.WriteString(p.name + " ")
 	}
 
-	command := fmt.Sprintf("systemd --user enable %s", sb.String())
+	command := fmt.Sprintf("systemctl --user enable %s", sb.String())
 	return arch_chroot.Run(command)
 }

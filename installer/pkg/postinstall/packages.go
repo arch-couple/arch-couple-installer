@@ -32,7 +32,7 @@ func downloadAllPackages(packages []pkg, fromAur bool) error {
 	if fromAur {
 		command = fmt.Sprintf("sudo -u builder yay -S %s --noconfirm", sb.String())
 	} else {
-		command = fmt.Sprintf("pacman -Sy --noconfirm %s", sb.String())
+		command = fmt.Sprintf("pacman -Sy %s --noconfirm", sb.String())
 	}
 
 	return arch_chroot.Run(command)
