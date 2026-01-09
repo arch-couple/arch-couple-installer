@@ -9,6 +9,8 @@ import (
 	"github.com/october-os/october-installer/pkg/arch_chroot"
 )
 
+// pkg represents a package
+// with all its related flags.
 type pkg struct {
 	name  string
 	flags []string
@@ -17,6 +19,9 @@ type pkg struct {
 const packageFilePath string = "/root/postinstall/packages"
 const aurFilePath string = "/root/postinstall/aur"
 
+// Downloads all the packages with a package manager.
+// inside the newly installed system.
+// It uses pacman or yay if the packages come from the AUR.
 func downloadAllPackages(packages []pkg, fromAur bool) error {
 	var sb strings.Builder
 	for _, p := range packages {
@@ -33,6 +38,11 @@ func downloadAllPackages(packages []pkg, fromAur bool) error {
 	return arch_chroot.Run(command)
 }
 
+// takes the given file path and read the package
+// list inside of it.
+//
+// List must have this form (flags can be omitted):
+//   - [package_name] [flag] [flag]
 func getPackageList(path string) ([]pkg, error) {
 	fd, err := os.Open(path)
 	if err != nil {
@@ -67,6 +77,9 @@ func getPackageList(path string) ([]pkg, error) {
 	return packageList, nil
 }
 
+// Takes the package slice and parses the flags
+// for each packages, then acts accordingly for
+// the found flags.
 func packageFlagParser(packages []pkg) error {
 	var systemdEnablePkgs []pkg
 	var systemdUserEnablePkgs []pkg

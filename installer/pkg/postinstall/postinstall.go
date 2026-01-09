@@ -83,7 +83,7 @@ func EnableMultilibRepo() error {
 	return arch_chroot.Run(command)
 }
 
-// Creates and enables the wheel group in sudo.
+// Enables the wheel group in sudo.
 //
 // Can return errors of types:
 //   - PostInstallError

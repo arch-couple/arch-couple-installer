@@ -9,6 +9,9 @@ import (
 const username string = "builder"
 const sudoerFilePath string = "/etc/sudoers.d/builder"
 
+// Creates the builder account and adds it to the
+// passwordless sudoer. Needed for installing
+// yay and software with it during installation.
 func activateBuilderAccount() error {
 	createUserCommand := fmt.Sprintf("useradd %s && passwd -d %s", username, username)
 	if err := arch_chroot.Run(createUserCommand); err != nil {
@@ -22,6 +25,8 @@ func activateBuilderAccount() error {
 	return arch_chroot.Run(command)
 }
 
+// Deletes the builder account and the file
+// it has inside /etc/sudoers.d.
 func deleteBuilderAccount() error {
 	deleteSudoFile := fmt.Sprintf("rm %s", sudoerFilePath)
 	deleteUser := fmt.Sprintf("userdel -r %s", username)
