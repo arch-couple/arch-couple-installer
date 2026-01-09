@@ -81,8 +81,8 @@ func getPackageList(path string) ([]pkg, error) {
 // for each packages, then acts accordingly for
 // the found flags.
 func packageFlagParser(packages []pkg) error {
-	var systemdEnablePkgs []pkg
-	var systemdUserEnablePkgs []pkg
+	var systemdEnablePkgs []string
+	var systemdUserEnablePkgs []string
 
 	for _, p := range packages {
 		if len(p.flags) == 0 {
@@ -90,11 +90,10 @@ func packageFlagParser(packages []pkg) error {
 		}
 
 		for _, f := range p.flags {
-			switch f {
-			case "SYSTEMD_ENABLE":
-				systemdEnablePkgs = append(systemdEnablePkgs, p)
-			case "SYSTEMD_USER_ENABLE":
-				systemdUserEnablePkgs = append(systemdUserEnablePkgs, p)
+			if strings.Contains(f, "SYSTEMD_ENABLE") {
+				systemdEnablePkgs = append(systemdEnablePkgs, getServiceName(p.name, f))
+			} else if strings.Contains(f, "SYSTEMD_USER_ENABLE") {
+				systemdUserEnablePkgs = append(systemdUserEnablePkgs, getServiceName(p.name, f))
 			}
 		}
 	}
@@ -112,4 +111,16 @@ func packageFlagParser(packages []pkg) error {
 	}
 
 	return nil
+}
+
+// Checks the flag and returns the real systemd
+// service name.
+func getServiceName(packageName, flag string) string {
+	if strings.Contains(flag, "=") {
+		splitString := strings.Split(flag, "=")
+
+		return splitString[1]
+	}
+
+	return packageName
 }
